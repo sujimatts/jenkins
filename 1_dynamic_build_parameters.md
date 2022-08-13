@@ -82,8 +82,7 @@ Fill in the following code in the Groovy script box.
   return ["Ludhiana", "Amritsar", "Jalandhar"]
 }
 ```
-
-    * Here, we have referenced the states parameter and used it’s value in the Groovy script to render the values for the cities for that state. Now, hit the save button and click on the Build with parameters.
+Here, we have referenced the states parameter and used it’s value in the Groovy script to render the values for the cities for that state. Now, hit the save button and click on the Build with parameters.
 It will look something like this on the Build with parameters page. Based on the selection in the states dropdown list the radio buttons will be updated.  
 ![Alt Text](https://d33wubrfki0l68.cloudfront.net/b49d4db4705941c2f63037752689b2c4024048c1/28d8c/assets/img/blog/render-jenkins-build-parameters-dynamically/job-build-with-parameters-reactive-parameter.gif)
 
