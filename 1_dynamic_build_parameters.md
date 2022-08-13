@@ -21,7 +21,7 @@ A text box filter can be optionally shown to aid in filtering the value options.
 This parameter provides the same features as the Active Choices Reactive Reference parameters.
 In addition to that, it can enhance the Job UI form with custom HTML controls like list, images, text boxes, etc. We can render the dynamically generated HTML from Groovy script, and it can render it well on the UI page. We can add JavaScript and CSS styling as well to the HTML controls we are rendering using this parameter.
 
-##Active Choices use cases
+## Active Choices use cases
 
 ## Active Choices Parameter
 When we want to generate the dropdown of checkboxes dynamically via some value returned from the API. For example, we can make an API call to fetch all the country’s states and return it as a Groovy list so they will be rendered as a dropdown list.
@@ -55,7 +55,9 @@ In this use case, we will see how to render a dropdown with dynamic values using
   - Now we will add the values to this parameter and will see it in action. (Refer the GIF above for how we can add the values). Add the following code in the Groovy script box.
   
   
-  ```return ["Gujarat", "Maharashtra", "Punjab"]```
+  ```
+  return ["Gujarat", "Maharashtra", "Punjab"]
+  ```
   
   - This will render a dropdown list with these values. Fallback script is used when there is some exception in the script execution. Save the job and open the Build with parameters page.
   - This is how it will be visible on the Build With Parameters page.
@@ -213,7 +215,8 @@ Let’s take a look at how we render the HTML inputs. We have to be very careful
 ## How we can render the textbox HTML input
 For textbox control, we can use the below syntax, we can update some values as per our use-case.
 
-```<input type="text" class=" " name="value" value="any-value">
+```
+<input type="text" class=" " name="value" value="any-value">
 ```
 
 Look at the name parameter for this HTML tag, we can not change it and must be the same as mentioned here. If we change it, we will not be able to get the value of this textbox in the pipeline code.
