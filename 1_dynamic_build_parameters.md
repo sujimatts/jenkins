@@ -71,7 +71,7 @@ In this use case, we will see how to render a dropdown with dynamic values using
   
     - Fill in the following code in the Groovy script box.
     
-    ```
+```
     if ( states == "Gujarat") {
   return ["Rajkot", "Ahmedabad", "Jamnagar"]
 } else if ( states == "Maharashtra") {
@@ -79,18 +79,225 @@ In this use case, we will see how to render a dropdown with dynamic values using
 } else if (states == "Punjab") {
   return ["Ludhiana", "Amritsar", "Jalandhar"]
 }
- 
 ```
     - Here, we have referenced the states parameter and used it’s value in the Groovy script to render the values for the cities for that state. Now, hit the save button and click on the Build with parameters.
 It will look something like this on the Build with parameters page. Based on the selection in the states dropdown list the radio buttons will be updated.  
+![Alt Text](https://d33wubrfki0l68.cloudfront.net/b49d4db4705941c2f63037752689b2c4024048c1/28d8c/assets/img/blog/render-jenkins-build-parameters-dynamically/job-build-with-parameters-reactive-parameter.gif)
+
+ 
+  Currently, none of the radio buttons are selected by default, if we want that any radio button is selected by default, then we can add ```:selected``` after the value in the list. For example, If we wish Ahmedabad to be selected by default, then we will put something like this,
+  
+```
+if ( states == "Gujarat") {
+  return ["Rajkot", "Ahmedabad:selected", "Jamnagar"]
+} …
+```
+  
+## Accessing the values in pipeline
+Now, we will add a pipeline code to see the values of the parameters we have added. Click on the configure and scroll down to the Pipeline section and add the following script there.
+  
+```
+pipeline {
+  agent any
+
+  stages {
+	stage('Demo Active Choices Parameter') {
+	  steps {
+		echo "States Selected ${states}"
+		echo "Cities Selected ${cities}"
+	  }
+	}
+  }
+}
+```
+ Save the configuration and click on the Build with parameters, select the state and city and click on Build, the console output will be as below,
+```
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Demo Active Choices Parameter)
+[Pipeline] echo
+States Selected Gujarat
+[Pipeline] echo
+Cities Selected Ahmedabad
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS 
+```
+In the above use-case, we used radio buttons for the cities; let’s change it to the checkboxes and see how it sets the multiple values as comma-separated values. We will go to the configure section and scroll down to the cities section, change the Choice Type to Check Boxes for the cities parameter, save and build the job with multiple cities selected and check the console output.
+
+![Alt Text](https://d33wubrfki0l68.cloudfront.net/d60410f8a638110e94c5fc63f18ef80fd2c655c8/df6bc/assets/img/blog/render-jenkins-build-parameters-dynamically/build-parameters-check-boxes.png)
+
+Look at the echo for cities, it has multiple city names separated by commas.
+```
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins in /var/lib/jenkins/workspace/tp
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Demo Active Choices Parameter)
+[Pipeline] echo
+States Selected Gujarat
+[Pipeline] echo
+Cities Selected Rajkot,Ahmedabad,Jamnagar
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS
+```
+
+# Render HTML inputs Control using Active Choices Reactive Reference Parameter
+
+We will try to write a sample Jenkins pipeline to deploy selected services for a multi-tier application along with the release tag. We will render a dropdown list using Active Choices Parameter which will list down the tiers we have. And based on the selection of the tier, we will render the services, which will have a checkbox and a textbox where a user can pass a release tag for the service. We will render checkbox and textbox as HTML input controls.
+
+  - We will begin by creating a new job. Go to Jenkins Home, select New Item, add a name for your Job, for the project type, select Pipeline project and click on Ok.
+  - On the configure job page select the This project is parameterized checkbox in the general tab.
+
+![Alt Text](https://d33wubrfki0l68.cloudfront.net/6ba8eaffb2f86c1d757595e22d6b83cfeb4a35a4/85b7e/assets/img/blog/render-jenkins-build-parameters-dynamically/create-pipeline-job-services.gif)
+
+  - Now, we will add an Active Choices Parameter which renders our Application Tiers as a Dropdown. Click on Add Parameter dropdown in the parameters section and select the Active Choices Parameter there. Configure the parameter as shown in the image below.
+  - The above parameter will render the tiers. Now we need to add an Active Choices Reactive Reference Parameter which reacts based on the selection on the tier parameter and renders the services for selection.
+  - Click on the Add Parameter dropdown and select the Active Choices Reactive Reference Parameter. Configure the parameter values as shown in the image below. This will have the same configuration as the Active Choices Reactive parameter that we did in the previous section, just the choice type will be different (Formatted HTML) in this case.
+
+![Alt Text](https://d33wubrfki0l68.cloudfront.net/2d3e443340ed197ef1c481632ffb7436e34e9715/c6fc2/assets/img/blog/render-jenkins-build-parameters-dynamically/active-choices-reactive-reference-parameter.png)
+
+Groovy Script for rendering the HTML input controls dynamically.
+
+```
+service_tier_map = [
+  "web": [
+    ["service_name": "user_frontend", "release_tag": "1.0.0" ],
+    ["service_name": "admin_frontend", "release_tag": "1.0.2" ],
+  ],
+  "backend": [
+    ["service_name": "admin_service", "release_tag": "2.1.0" ],
+    ["service_name": "finance_service", "release_tag": "2.2.0" ],
+    ["service_name": "payment_service", "release_tag": "3.2.0" ],
+  ],
+  "database": [
+    ["service_name": "dynamo_db", "release_tag": "5.4.1"],
+    ["service_name": "mysql", "release_tag": "3.2.1"],
+    ["service_name": "postgresql", "release_tag": "1.2.3"],
+  ],
+]
+
+html_to_be_rendered = "<table><tr>"
+service_list = service_tier_map[tier]
+service_list.each { service ->
+  html_to_be_rendered = """
+    ${html_to_be_rendered}
+    <tr>
+    <td>
+    <input name=\"value\" alt=\"${service.service_name}\" json=\"${service.service_name}\" type=\"checkbox\" class=\" \">
+    <label title=\"${service.service_name}\" class=\" \">${service.service_name}</label>
+    </td>
+    <td>
+    <input type=\"text\" class=\" \" name=\"value\" value=\"${service.release_tag}\"> </br>
+    </td>
+    </tr>
+"""
+}
 
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
+html_to_be_rendered = "${html_to_be_rendered}</tr></table>"
+
+return html_to_be_rendered
+```
+
+Let’s take a look at how we render the HTML inputs. We have to be very careful about the HTML inputs and their syntax as if we change some configuration around them, we will not be able to get the value of that input control in the Pipeline code.
+
+## How we can render the textbox HTML input
+For textbox control, we can use the below syntax, we can update some values as per our use-case.
+
+```<input type="text" class=" " name="value" value="any-value">
+```
+
+Look at the name parameter for this HTML tag, we can not change it and must be the same as mentioned here. If we change it, we will not be able to get the value of this textbox in the pipeline code.
+
+## How we can render the checkbox HTML input
+
+For the checkbox control, we can use the below syntax, we can update some values as per our use-case.
+
+```
+<input name="value" alt="checkbox-name" json="checkbox-name" type="checkbox" class=" ">
+
+```
+As we have seen for the textbox input name must be value. alt and JSON attributes are optional, but as we have multiple checkboxes in our use-case we need to use this parameter to identify which checkbox was checked. If we don’t pass the alt and JSON parameter then the value for the checkbox will be seen as true in the pipeline code, but if we pass the alt and JSON then the value of the checkbox will be seen as the string we passed in alt and JSON.
+
+NOTE: We can see only selected checkboxes in the pipeline code, unselected ones will be ignored by the Jenkins. Also alt and JSON parameters must have the same value for the checkbox.
+
+Save the configuration and open the Build with Parameter page, it will be something like this.
+
+![Alt Text](https://d33wubrfki0l68.cloudfront.net/9624d6e362375caa0be35229183b5ec205351a34/7cd23/assets/img/blog/render-jenkins-build-parameters-dynamically/build-render-checkbox-html-input.gif)
+
+## Pipeline code to access the values
+Let’s add the pipeline code to see the values in the action. Open the configure Job page, scroll down to the last and add the following script to the pipeline code text box.
+
+```
+pipeline {
+  agent any
+
+  stages {
+    stage('Demo Active Choices Parameter') {
+      steps {
+        echo "Tier Selected ${tier}"
+        echo "Services Selected ${services}"
+      }
+    }
+  }
+}
+```
+
+Save the job and Run the job by clicking on Build with parameters, select the tier and services you want to deploy and click on Build. I have run the job using the parameters below and the output for the same is mentioned below.
+
+![image](https://user-images.githubusercontent.com/40743779/184466658-39977aa0-db3c-4ed5-b100-c92c8b21ddd2.png)
+
+
+Console Output :
+
+```
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Demo Active Choices Parameter)
+[Pipeline] echo
+Tier Selected backend
+[Pipeline] echo
+Services Selected admin_service,2.1.0,2.2.0,payment_service,2.3.0,
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS
+```
+
+Let’s understand the output, the echo statement for tier is straightforward, it prints whatever tier we have selected on the build with parameters page.
+
+The second echo statement which prints the build parameter services, has comma-separated values for the HTML inputs control we have rendered. We have provided the service_name in the alt and json field for the checkboxes, so whichever checkboxes we selected, their name will be stored in the output. If we don’t provide the alt and json field while rendering the HTML for the checkboxes, we will see the text “selected” instead of name and we will never be able to identify which checkbox was selected.
+
+For textboxes, it will print the value we have added to the input box. The order in which these values are printed is the same order in which the controls were rendered from the Groovy script. We can split this value based on commas and can deploy our services.
+
+# Conclusion
+Jenkins declarative pipeline enables the ease of creating CI/CD for the various systems, but at the same time the declarative nature of the pipeline becomes an headache when we want to render parameter dynamically. As we have to declare all the parameters before we run the pipeline, and in the above use-cases, we are not sure what all the parameters we need.
+
+The Active Choices plugin helps to solve this problem by allowing us to render the parameter values and even the parameters dynamically by means of the Groovy and HTML code. This plugin is very simple to use as it needs just basic level of understanding of Groovy and HTML.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
