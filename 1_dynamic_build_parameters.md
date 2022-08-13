@@ -66,12 +66,12 @@ In this use case, we will see how to render a dropdown with dynamic values using
   
 Now we will add an Active Choices Reactive Parameter which will update the values based on the selection in the states parameter. We will render the cities for the states we rendered.
 
-    - Click on the configure and scroll down to the states parameter we have added.
-    - Click again on the add parameter dropdown and select the Active Choices Reactive Parameter.
+    *Click on the configure and scroll down to the states parameter we have added.
+    *Click again on the add parameter dropdown and select the Active Choices Reactive Parameter.
   
   ![Alt Text](https://d33wubrfki0l68.cloudfront.net/a8f119589746b624772fa597aaea76e92f7efe1f/0ff3f/assets/img/blog/render-jenkins-build-parameters-dynamically/pipeline-active-choices-reactive-parameter.gif)
 
-    -Fill in the following code in the Groovy script box.
+Fill in the following code in the Groovy script box.
     
 ```
     if ( states == "Gujarat") {
@@ -83,7 +83,7 @@ Now we will add an Active Choices Reactive Parameter which will update the value
 }
 ```
 
-    -Here, we have referenced the states parameter and used it’s value in the Groovy script to render the values for the cities for that state. Now, hit the save button and click on the Build with parameters.
+    * Here, we have referenced the states parameter and used it’s value in the Groovy script to render the values for the cities for that state. Now, hit the save button and click on the Build with parameters.
 It will look something like this on the Build with parameters page. Based on the selection in the states dropdown list the radio buttons will be updated.  
 ![Alt Text](https://d33wubrfki0l68.cloudfront.net/b49d4db4705941c2f63037752689b2c4024048c1/28d8c/assets/img/blog/render-jenkins-build-parameters-dynamically/job-build-with-parameters-reactive-parameter.gif)
 
