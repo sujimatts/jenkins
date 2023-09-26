@@ -1,9 +1,25 @@
-// shared_library/vars/multi.groovy
+// shared_library/vars/createDirectory.groovy
 
-def myFunction1() {
-    echo "Function 1 called"
-}
+def call() {
+    script {
+        // Define the directory path
+        def directoryPath = 'abcd'
 
-def myFunction2() {
-    echo "Function 2 called"
+        // Create the directory
+        def directory = new File(directoryPath)
+        if (!directory.exists()) {
+            directory.mkdirs()
+            echo "Directory '${directoryPath}' created."
+        } else {
+            echo "Directory '${directoryPath}' already exists."
+        }
+
+        // Get the current timestamp
+        def timestamp = new Date().format("yyyy-MM-dd HH:mm:ss")
+
+        // Store the timestamp in a file
+        def file = new File("${directoryPath}/file.txt")
+        file.text = "Timestamp: ${timestamp}"
+        echo "Timestamp '${timestamp}' stored in 'file.txt'."
+    }
 }
