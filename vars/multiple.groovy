@@ -1,9 +1,9 @@
 // shared_library/vars/multi.groovy
 
-def cricket() {
+def callCricket() {
     echo "Cricket function called"
 }
 
-def football() {
+def callFootball() {
     echo "Football function called"
 }
