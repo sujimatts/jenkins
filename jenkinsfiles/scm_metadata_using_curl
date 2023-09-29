@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('List Folders') {
+            steps {
+                script {
+                    def gitHubApiUrl = 'https://api.github.com/repos/darinpope/github-api-global-lib/contents/'
+
+                    // Execute the curl command to fetch the JSON data
+                    def curlCommand = "curl -s $gitHubApiUrl"
+                    def jsonResponse = sh(script: curlCommand, returnStdout: true).trim()
+
+                    def folderList = []
+
+                    try {
+                        def entries = readJSON text: jsonResponse
+                        entries.each { entry ->
+                            if (entry.type == 'dir') {
+                                folderList.add(entry.name)
+                            }
+                        }
+
+                        echo "List of folders in the repository:"
+                        echo folderList.join('\n')
+                    } catch (Exception e) {
+                        echo "Error parsing JSON data: ${e.message}"
+                    }
+                }
+            }
+        }
+    }
+}
+

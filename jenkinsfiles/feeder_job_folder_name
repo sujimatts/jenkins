@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('List Folders') {
+            steps {
+                script {
+                    def gitHubApiUrl = 'https://api.github.com/repos/darinpope/github-api-global-lib/contents/'
+                    def folderList = []
+
+                    def response = httpRequest(url: gitHubApiUrl)
+
+                    if (response.status == 200) {
+                        try {
+                            def jsonResponse = readJSON text: response.content
+                            jsonResponse.each { entry ->
+                                if (entry.type == 'dir') {
+                                    folderList.add(entry.name)
+                                }
+                            }
+
+                            echo "List of folders in the repository:"
+                            echo folderList.join('\n')
+
+                            // Iterate through folder names and trigger the second Jenkins job for each folder
+                            folderList.each { folderName ->
+                                build job: 'build_job', parameters: [string(name: 'FOLDER_NAME', value: folderName)]
+                            }
+                        } catch (Exception e) {
+                            echo "Error parsing JSON data: ${e.message}"
+                        }
+                    } else {
+                        echo "Failed to retrieve data from GitHub API. Status code: ${response.status}"
+                    }
+                }
+            }
+        }
+    }
+}
+

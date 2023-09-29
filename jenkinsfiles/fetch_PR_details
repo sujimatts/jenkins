@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('List Pull Requests') {
+            steps {
+                script {
+                    def gitHubApiUrl = 'https://api.github.com/repos/darinpope/github-api-global-lib/pulls'
+                    def prList = []
+
+                    def response = httpRequest(url: gitHubApiUrl)
+
+                    if (response.status == 200) {
+                        try {
+                            def jsonResponse = readJSON text: response.content
+                            jsonResponse.each { pr ->
+                                prList.add("#${pr.number}: ${pr.title}")
+                            }
+
+                            echo "List of Pull Requests:"
+                            echo prList.join('\n')
+                        } catch (Exception e) {
+                            echo "Error parsing JSON data: ${e.message}"
+                        }
+                    } else {
+                        echo "Failed to retrieve PR data from GitHub API. Status code: ${response.status}"
+                    }
+                }
+            }
+        }
+    }
+}
+
