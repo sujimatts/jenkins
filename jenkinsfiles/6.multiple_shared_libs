@@ -1,0 +1,68 @@
+@Library(['darinpope', 'sample_function']) _
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Custom1') {
+            steps {
+                script {
+                    // Call the function from the sample_function library
+                    multiple()
+                }
+            }
+        }
+        stage('Custom2') {
+            steps {
+                script {
+                    // Call the function from the darinpope library
+                    def name = "Alice"
+                    def dayOfWeek = "Monday"
+                    helloWorldSimple(name, dayOfWeek)
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline execution succeeded!"
+        }
+        failure {
+            echo "Pipeline execution failed!"
+        }
+    }
+}
+
+
+//multiple.groovy
+// def call() {
+//     script {
+//         // Define the directory path
+//         def directoryPath = 'abcd'
+
+//         // Create the directory
+//         def directory = new File(directoryPath)
+//         if (!directory.exists()) {
+//             directory.mkdirs()
+//             echo "Directory '${directoryPath}' created."
+//         } else {
+//             echo "Directory '${directoryPath}' already exists."
+//         }
+
+//         // Get the current timestamp
+//         def timestamp = new Date().format("yyyy-MM-dd HH:mm:ss")
+
+//         // Store the timestamp in a file
+//         def file = new File("${directoryPath}/file.txt")
+//         file.text = "Timestamp: ${timestamp}"
+//         echo "Timestamp '${timestamp}' stored in 'file.txt'."
+//     }
+// }
+
+
+//helloWorldSimple
+// https://github.com/darinpope/github-api-global-lib/blob/main/vars/helloWorldSimple.groovy
+// def call(String name, String dayOfWeek) {
+//   sh "echo Hello World ${name}. It is ${dayOfWeek}."
+// }
