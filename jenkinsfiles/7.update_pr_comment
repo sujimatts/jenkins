@@ -1,0 +1,73 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Retrieve Latest PR ID') {
+            steps {
+                script {
+                    def gitHubApiUrl = 'https://api.github.com/repos/sujimatts/jenkins/pulls'
+
+                    // Use curl to make an HTTP GET request to the GitHub API and save the response to a file
+                    sh "curl -s -o response.json ${gitHubApiUrl}"
+
+                    // Parse the JSON file using Python 3 (specify the full path to Python 3 executable)
+                    def latestPRId = sh(script: '/usr/bin/python3 -c "import json; data = json.load(open(\'response.json\')); print(data[0][\'number\'])"', returnStdout: true).trim()
+                    
+                    // Set the PR ID as an environment variable
+                    env.LATEST_PR_ID = latestPRId
+                }
+            }
+        }
+
+        stage('Trigger job-one') {
+            when {
+                expression { env.LATEST_PR_ID != null }
+            }
+            steps {
+                script {
+                    // Access the latestPRId value from the environment variable
+                    def latestPRId = env.LATEST_PR_ID
+
+                    // Trigger "job-one" and pass the PR ID as a parameter
+                    build(job: 'job-one', parameters: [string(name: 'PR_ID', value: "${latestPRId}")])
+                }
+            }
+        }
+
+        stage('Update PR Request') {
+            when {
+                expression { env.LATEST_PR_ID != null }
+            }
+            steps {
+                script {
+                    // Access the latestPRId value from the environment variable
+                    def latestPRId = env.LATEST_PR_ID
+
+                    // Read the content of "output.txt" into a variable
+                    def jobOneOutput = readFile('/var/lib/jenkins/workspace/job-one/output.txt').trim()
+                    
+                    // Build the PR update message including the job-one output
+                    def prUpdateMessage = """
+                        "body": "${jobOneOutput.replaceAll('"', '\\\\"').replaceAll('\n', '\\\\n')}"
+                    """
+                    echo prUpdateMessage
+
+                    // Use curl to make an HTTP POST request to post a comment on the PR
+                    // Replace <YOUR_GITHUB_TOKEN> and <YOUR_REPO> with actual values
+                    def curlCommand = """
+                        curl -X POST \
+                            -H 'Authorization: token OnGf3pt6m8' \
+                            -H 'Content-Type: application/json' \
+                            -d '{${prUpdateMessage}}' \
+                            https://api.github.com/repos/sujimatts/jenkins/issues/${latestPRId}/comments
+                    """
+
+                    
+                    sh curlCommand
+
+                }
+            }
+        }
+    }
+}
+
